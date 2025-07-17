@@ -486,6 +486,39 @@ class AnalisadorRoteiro:
         print("✅ Análise paralela concluída!")
         return resultados
 
+    async def analisar_criterios_selecionados_async(self, arquivo_roteiro, criterios_selecionados):
+        """Analisa o roteiro apenas com critérios selecionados (assíncrono - paralelo)"""
+        roteiro = self.ler_roteiro(arquivo_roteiro)
+        if not roteiro:
+            return None
+        
+        if not criterios_selecionados:
+            return None
+        
+        print(f"🚀 Iniciando análise paralela do roteiro com {len(criterios_selecionados)} critérios selecionados...")
+        
+        # Criar tasks para análise paralela
+        tasks = []
+        for i, criterio in enumerate(criterios_selecionados, 1):
+            titulo = criterio['titulo'] if isinstance(criterio, dict) else criterio[:50]
+            print(f"📋 Preparando análise do critério {i}/{len(criterios_selecionados)}: {titulo}...")
+            task = self.analisar_criterio_async(roteiro, criterio)
+            tasks.append((criterio, task))
+        
+        # Executar todas as análises em paralelo
+        print(f"⚡ Executando {len(tasks)} análises em paralelo...")
+        resultados = []
+        
+        for criterio, task in tasks:
+            resultado = await task
+            resultados.append({
+                'criterio': criterio,
+                'resultado': resultado
+            })
+        
+        print("✅ Análise paralela concluída!")
+        return resultados
+
     def analisar_roteiro_completo(self, arquivo_roteiro, arquivo_criterios='criterios.txt'):
         """Analisa o roteiro completo com todos os critérios"""
         roteiro = self.ler_roteiro(arquivo_roteiro)

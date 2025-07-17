@@ -65,13 +65,8 @@ def executar_analise_sequencial(roteiro_content, modelo_gpt):
     # Mostrar resultados
     mostrar_resultados(resultados, analisador, modelo_gpt)
 
-def executar_analise_paralela(roteiro_content, modelo_gpt):
-    """Executa análise paralela do roteiro"""
-    # Verificar se há critérios
-    if not os.path.exists('criterios.txt'):
-        st.error("❌ Arquivo criterios.txt não encontrado!")
-        st.stop()
-    
+def executar_analise_paralela(roteiro_content, modelo_gpt, criterios_selecionados, criterios_disponiveis):
+    """Executa análise paralela do roteiro apenas com critérios selecionados"""
     # Inicializar analisador
     try:
         analisador = AnalisadorRoteiro(modelo=modelo_gpt.strip())
@@ -79,14 +74,18 @@ def executar_analise_paralela(roteiro_content, modelo_gpt):
         st.error(f"❌ Erro ao inicializar analisador: {e}")
         st.stop()
     
-    # Ler critérios
-    criterios = analisador.ler_criterios()
-    if not criterios:
-        st.error("❌ Nenhum critério encontrado!")
+    # Filtrar apenas critérios selecionados
+    criterios_para_analise = []
+    for i, criterio in enumerate(criterios_disponiveis):
+        if criterios_selecionados.get(i, False):
+            criterios_para_analise.append(criterio)
+    
+    if not criterios_para_analise:
+        st.error("❌ Nenhum critério selecionado!")
         st.stop()
     
     # Executar análise paralela
-    with st.spinner("Analisando roteiro (paralelo)..."):
+    with st.spinner(f"Analisando roteiro com {len(criterios_para_analise)} critérios..."):
         # Criar um arquivo temporário para o roteiro
         import tempfile
         with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False, encoding='utf-8') as f:
@@ -94,16 +93,16 @@ def executar_analise_paralela(roteiro_content, modelo_gpt):
             arquivo_temp = f.name
         
         try:
-            # Executar análise assíncrona
-            resultados = asyncio.run(analisador.analisar_roteiro_completo_async(arquivo_temp))
+            # Executar análise assíncrona apenas com critérios selecionados
+            resultados = asyncio.run(analisador.analisar_criterios_selecionados_async(arquivo_temp, criterios_para_analise))
         finally:
             # Limpar arquivo temporário
             os.unlink(arquivo_temp)
     
     # Mostrar resultados
-    mostrar_resultados(resultados, analisador, modelo_gpt)
+    mostrar_resultados(resultados, analisador, modelo_gpt, criterios_disponiveis)
 
-def mostrar_resultados(resultados, analisador, modelo_gpt):
+def mostrar_resultados(resultados, analisador, modelo_gpt, criterios_disponiveis):
     """Mostra os resultados da análise"""
     st.success("✅ Análise concluída!")
     st.header("📊 Relatório de Análise")
@@ -113,23 +112,66 @@ def mostrar_resultados(resultados, analisador, modelo_gpt):
     aprovados = 0
     total = len(resultados)
     
+    # Inicializar estado para próxima análise se não existir
+    if 'proxima_analise_criterios' not in st.session_state:
+        st.session_state.proxima_analise_criterios = {}
+    
+    st.markdown("**📋 Resultados por critério:**")
+    st.markdown("*Desmarque critérios aprovados ou marque os que precisam de nova análise*")
+    
     for i, resultado in enumerate(resultados, 1):
         criterio = resultado['criterio']
         titulo = criterio['titulo'] if isinstance(criterio, dict) else criterio
         analise = resultado['resultado']
         
         # Verificar se foi aprovado
-        if "✅ APROVADO" in analise:
+        foi_aprovado = "✅ APROVADO" in analise
+        if foi_aprovado:
             aprovados += 1
-            st.success(f"**{i}. {titulo}**")
-            st.write("✅ APROVADO")
+        
+        # Encontrar índice do critério na lista original
+        criterio_index = None
+        for idx, crit_original in enumerate(criterios_disponiveis):
+            if crit_original['titulo'] == titulo:
+                criterio_index = idx
+                break
+        
+        # Definir valor padrão para próxima análise
+        # Aprovados: desmarcados por padrão
+        # Reprovados: marcados por padrão
+        default_value = not foi_aprovado
+        
+        # Usar valor salvo se existir
+        if criterio_index is not None:
+            saved_value = st.session_state.proxima_analise_criterios.get(criterio_index, default_value)
         else:
-            if "❌ NÃO ATENDE" in analise:
-                st.error(f"**{i}. {titulo}**")
+            saved_value = default_value
+        
+        # Mostrar resultado com checkbox
+        col1, col2 = st.columns([0.1, 0.9])
+        
+        with col1:
+            if criterio_index is not None:
+                checkbox_key = f"prox_analise_{criterio_index}"
+                incluir_proxima = st.checkbox(
+                    "",
+                    value=saved_value,
+                    key=checkbox_key,
+                    help="Incluir na próxima análise"
+                )
+                st.session_state.proxima_analise_criterios[criterio_index] = incluir_proxima
+        
+        with col2:
+            if foi_aprovado:
+                st.success(f"**{i}. {titulo}**")
+                st.write("✅ APROVADO")
             else:
-                st.warning(f"**{i}. {titulo}**")
-            
-            st.write(analise)
+                if "❌ NÃO ATENDE" in analise:
+                    st.error(f"**{i}. {titulo}**")
+                else:
+                    st.warning(f"**{i}. {titulo}**")
+                
+                st.write(analise)
         
         st.markdown("---")
     
@@ -175,6 +217,11 @@ def mostrar_resultados(resultados, analisador, modelo_gpt):
         if roteiro_editado.strip():
             # Atualizar session state com texto editado
             st.session_state.roteiro_content = roteiro_editado
+            
+            # Atualizar critérios selecionados com base na próxima análise
+            if 'proxima_analise_criterios' in st.session_state:
+                st.session_state.criterios_selecionados = st.session_state.proxima_analise_criterios.copy()
+            
             # Reanalizar com texto editado
             st.rerun()
         else:
@@ -404,9 +451,66 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
             linhas = len(roteiro_content.splitlines())
             st.metric("Linhas", linhas)
         
+        # Seção de seleção de critérios
+        st.markdown("---")
+        st.header("📋 Critérios de Análise")
+        st.markdown("**Selecione os critérios que deseja analisar:**")
+        
+        # Verificar se há critérios
+        if not os.path.exists('criterios.txt'):
+            st.error("❌ Arquivo criterios.txt não encontrado!")
+            st.stop()
+        
+        # Carregar critérios
+        try:
+            analisador_temp = AnalisadorRoteiro()
+            criterios_disponiveis = analisador_temp.ler_criterios()
+        except Exception as e:
+            st.error(f"❌ Erro ao carregar critérios: {e}")
+            st.stop()
+        
+        if not criterios_disponiveis:
+            st.error("❌ Nenhum critério encontrado!")
+            st.stop()
+        
+        # Inicializar estado dos critérios se não existir
+        if 'criterios_selecionados' not in st.session_state:
+            st.session_state.criterios_selecionados = {i: True for i in range(len(criterios_disponiveis))}
+        
+        # Mostrar critérios com checkboxes
+        criterios_selecionados = {}
+        for i, criterio in enumerate(criterios_disponiveis):
+            titulo = criterio['titulo'] if isinstance(criterio, dict) else criterio
+            descricao = criterio['descricao'] if isinstance(criterio, dict) else ""
+            
+            # Usar session_state para manter o estado
+            key = f"criterio_{i}"
+            default_value = st.session_state.criterios_selecionados.get(i, True)
+            
+            selecionado = st.checkbox(
+                titulo,
+                value=default_value,
+                key=key,
+                help=descricao if descricao else None
+            )
+            
+            criterios_selecionados[i] = selecionado
+        
+        # Atualizar session_state
+        st.session_state.criterios_selecionados = criterios_selecionados
+        
+        # Contar critérios selecionados
+        total_criterios = len(criterios_disponiveis)
+        criterios_marcados = sum(1 for selecionado in criterios_selecionados.values() if selecionado)
+        
+        st.caption(f"📊 {criterios_marcados}/{total_criterios} critérios selecionados")
+        
         # Botão para analisar
         if st.button("🔍 Analisar Roteiro", type="primary", use_container_width=True):
-            executar_analise_paralela(roteiro_content, modelo_gpt)
+            if criterios_marcados == 0:
+                st.error("❌ Selecione pelo menos um critério para análise!")
+            else:
+                executar_analise_paralela(roteiro_content, modelo_gpt, criterios_selecionados, criterios_disponiveis)
     
     else:
         st.warning("⚠️ Digite ou cole seu roteiro para começar a análise!")
