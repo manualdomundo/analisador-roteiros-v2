@@ -243,6 +243,74 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
                     st.rerun()
                 else:
                     st.error("❌ O roteiro editado não pode estar vazio!")
+            
+            # Seção de logs das requisições
+            st.markdown("---")
+            st.header("📊 Log de Requisições à API")
+            
+            # Calcular estatísticas totais
+            total_tokens = sum(log.get('tokens_total', 0) for log in analisador.log_requisicoes)
+            total_requisicoes = len(analisador.log_requisicoes)
+            
+            # Métricas de uso
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Total de Requisições", total_requisicoes)
+            with col2:
+                st.metric("Total de Tokens", total_tokens)
+            with col3:
+                # Estimativa de custo (aproximada)
+                if modelo_gpt == "gpt-4o":
+                    custo_estimado = (total_tokens / 1000) * 0.015  # $0.015 por 1K tokens
+                elif modelo_gpt == "gpt-4o-mini":
+                    custo_estimado = (total_tokens / 1000) * 0.0015  # $0.0015 por 1K tokens
+                else:
+                    custo_estimado = (total_tokens / 1000) * 0.002  # $0.002 por 1K tokens
+                
+                st.metric("Custo Estimado", f"${custo_estimado:.4f}")
+            
+            # Tabela detalhada dos logs
+            if st.expander("🔍 Detalhes das Requisições", expanded=False):
+                for i, log in enumerate(analisador.log_requisicoes, 1):
+                    st.subheader(f"Requisição {i} - {log['timestamp']}")
+                    
+                    # Informações básicas
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        st.write(f"**Modelo:** {log['modelo']}")
+                        st.write(f"**Tipo:** {log['tipo']}")
+                    with col2:
+                        st.write(f"**Tokens Input:** {log['tokens_input']}")
+                        st.write(f"**Tokens Output:** {log['tokens_output']}")
+                    with col3:
+                        st.write(f"**Tokens Total:** {log['tokens_total']}")
+                        st.write(f"**Chars Prompt:** {log['prompt_chars']}")
+                    
+                    # Mostrar prompt (truncado)
+                    st.write("**Prompt:**")
+                    st.code(log['prompt'], language="text")
+                    
+                    # Mostrar resposta
+                    st.write("**Resposta:**")
+                    if log['tipo'].startswith('ERRO'):
+                        st.error(log['resposta'])
+                    else:
+                        st.success(log['resposta'])
+                    
+                    st.markdown("---")
+            
+            # Recomendações de otimização
+            st.subheader("💡 Recomendações de Otimização")
+            
+            if total_tokens > 10000:
+                st.warning("⚠️ Alto uso de tokens! Considere:")
+                st.markdown("- Usar GPT-3.5-turbo para economizar")
+                st.markdown("- Roteiros mais curtos")
+                st.markdown("- Menos critérios por análise")
+            elif total_tokens > 5000:
+                st.info("ℹ️ Uso moderado de tokens. Considere usar GPT-4o-mini para equilibrar custo e qualidade.")
+            else:
+                st.success("✅ Uso eficiente de tokens!")
 
 if __name__ == "__main__":
     main()

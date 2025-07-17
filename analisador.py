@@ -9,6 +9,7 @@ class AnalisadorRoteiro:
             api_key=api_key or os.getenv('OPENAI_API_KEY')
         )
         self.modelo = modelo
+        self.log_requisicoes = []  # Log de todas as requisições
     
     def _load_env(self):
         """Carrega variáveis do arquivo .env"""
@@ -135,17 +136,58 @@ class AnalisadorRoteiro:
         """
         
         try:
+            # Preparar dados da requisição
+            messages = [
+                {"role": "system", "content": "Você é um especialista em análise de roteiros de vídeo. Seja preciso e conciso."},
+                {"role": "user", "content": prompt}
+            ]
+            
+            # Fazer requisição
             response = self.client.chat.completions.create(
                 model=self.modelo,
-                messages=[
-                    {"role": "system", "content": "Você é um especialista em análise de roteiros de vídeo. Seja preciso e conciso."},
-                    {"role": "user", "content": prompt}
-                ],
+                messages=messages,
                 max_tokens=500,
                 temperature=0.1
             )
-            return response.choices[0].message.content
+            
+            # Extrair dados da resposta
+            resposta_content = response.choices[0].message.content
+            
+            # Log da requisição
+            log_entry = {
+                "timestamp": datetime.now().strftime("%H:%M:%S"),
+                "modelo": self.modelo,
+                "tipo": "Análise de Critério",
+                "prompt_chars": len(prompt),
+                "resposta_chars": len(resposta_content),
+                "tokens_input": response.usage.prompt_tokens if hasattr(response, 'usage') else 0,
+                "tokens_output": response.usage.completion_tokens if hasattr(response, 'usage') else 0,
+                "tokens_total": response.usage.total_tokens if hasattr(response, 'usage') else 0,
+                "prompt": prompt[:200] + "..." if len(prompt) > 200 else prompt,
+                "resposta": resposta_content
+            }
+            
+            self.log_requisicoes.append(log_entry)
+            
+            return resposta_content
         except Exception as e:
+            # Log do erro
+            log_entry = {
+                "timestamp": datetime.now().strftime("%H:%M:%S"),
+                "modelo": self.modelo,
+                "tipo": "ERRO",
+                "erro": str(e),
+                "prompt_chars": len(prompt),
+                "resposta_chars": 0,
+                "tokens_input": 0,
+                "tokens_output": 0,
+                "tokens_total": 0,
+                "prompt": prompt[:200] + "..." if len(prompt) > 200 else prompt,
+                "resposta": f"Erro: {str(e)}"
+            }
+            
+            self.log_requisicoes.append(log_entry)
+            
             return f"Erro na análise da parte: {str(e)}"
     
     def _consolidar_analises(self, analises_partes, descricao):
@@ -171,17 +213,58 @@ class AnalisadorRoteiro:
         """
         
         try:
+            # Preparar dados da requisição
+            messages = [
+                {"role": "system", "content": "Você é um especialista em análise de roteiros de vídeo."},
+                {"role": "user", "content": prompt}
+            ]
+            
+            # Fazer requisição
             response = self.client.chat.completions.create(
                 model=self.modelo,
-                messages=[
-                    {"role": "system", "content": "Você é um especialista em análise de roteiros de vídeo."},
-                    {"role": "user", "content": prompt}
-                ],
+                messages=messages,
                 max_tokens=600,
                 temperature=0.3
             )
-            return response.choices[0].message.content
+            
+            # Extrair dados da resposta
+            resposta_content = response.choices[0].message.content
+            
+            # Log da requisição
+            log_entry = {
+                "timestamp": datetime.now().strftime("%H:%M:%S"),
+                "modelo": self.modelo,
+                "tipo": "Consolidação",
+                "prompt_chars": len(prompt),
+                "resposta_chars": len(resposta_content),
+                "tokens_input": response.usage.prompt_tokens if hasattr(response, 'usage') else 0,
+                "tokens_output": response.usage.completion_tokens if hasattr(response, 'usage') else 0,
+                "tokens_total": response.usage.total_tokens if hasattr(response, 'usage') else 0,
+                "prompt": prompt[:200] + "..." if len(prompt) > 200 else prompt,
+                "resposta": resposta_content
+            }
+            
+            self.log_requisicoes.append(log_entry)
+            
+            return resposta_content
         except Exception as e:
+            # Log do erro
+            log_entry = {
+                "timestamp": datetime.now().strftime("%H:%M:%S"),
+                "modelo": self.modelo,
+                "tipo": "ERRO - Consolidação",
+                "erro": str(e),
+                "prompt_chars": len(prompt),
+                "resposta_chars": 0,
+                "tokens_input": 0,
+                "tokens_output": 0,
+                "tokens_total": 0,
+                "prompt": prompt[:200] + "..." if len(prompt) > 200 else prompt,
+                "resposta": f"Erro: {str(e)}"
+            }
+            
+            self.log_requisicoes.append(log_entry)
+            
             return f"Erro na consolidação: {str(e)}"
     
     def analisar_roteiro_completo(self, arquivo_roteiro, arquivo_criterios='criterios.txt'):
