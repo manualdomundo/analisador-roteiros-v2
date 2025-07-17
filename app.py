@@ -297,16 +297,16 @@ def main():
         if tipo_modelo == "Modelos Predefinidos":
             modelo_gpt = st.selectbox(
                 "Escolha o modelo:",
-                options=["gpt-4o", "gpt-4o-mini", "gpt-3.5-turbo", "gpt-4-turbo"],
+                options=["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo", "gpt-4-turbo"],
                 index=0,
-                help="GPT-4o: Mais preciso | GPT-4o-mini: Equilibrado | GPT-3.5-turbo: Econômico | GPT-4-turbo: Versão anterior"
+                help="GPT-4o-mini: Equilibrado (padrão) | GPT-4o: Mais preciso | GPT-3.5-turbo: Econômico | GPT-4-turbo: Versão anterior"
             )
             
             # Mostrar informações do modelo
-            if modelo_gpt == "gpt-4o":
+            if modelo_gpt == "gpt-4o-mini":
+                st.info("⚡ **GPT-4o-mini**: Equilibrio entre qualidade e custo (padrão)")
+            elif modelo_gpt == "gpt-4o":
                 st.info("🎯 **GPT-4o**: Máxima precisão e qualidade")
-            elif modelo_gpt == "gpt-4o-mini":
-                st.info("⚡ **GPT-4o-mini**: Equilibrio entre qualidade e custo")
             elif modelo_gpt == "gpt-4-turbo":
                 st.info("🚀 **GPT-4-turbo**: Versão anterior do GPT-4")
             else:
@@ -314,9 +314,9 @@ def main():
         else:
             modelo_gpt = st.text_input(
                 "Digite o modelo:",
-                value="gpt-4o",
+                value="gpt-4o-mini",
                 help="Digite qualquer modelo OpenAI válido (ex: gpt-4, gpt-3.5-turbo-1106, etc.)",
-                placeholder="gpt-4o"
+                placeholder="gpt-4o-mini"
             )
             
             if modelo_gpt:
@@ -404,16 +404,9 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
             linhas = len(roteiro_content.splitlines())
             st.metric("Linhas", linhas)
         
-        # Botões para analisar
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            if st.button("🔍 Analisar Roteiro (Sequencial)", type="secondary", use_container_width=True):
-                executar_analise_sequencial(roteiro_content, modelo_gpt)
-        
-        with col2:
-            if st.button("⚡ Analisar Roteiro (Paralelo)", type="primary", use_container_width=True):
-                executar_analise_paralela(roteiro_content, modelo_gpt)
+        # Botão para analisar
+        if st.button("🔍 Analisar Roteiro", type="primary", use_container_width=True):
+            executar_analise_paralela(roteiro_content, modelo_gpt)
     
     else:
         st.warning("⚠️ Digite ou cole seu roteiro para começar a análise!")

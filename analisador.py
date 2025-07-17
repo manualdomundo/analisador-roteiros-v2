@@ -4,7 +4,7 @@ import asyncio
 from datetime import datetime
 
 class AnalisadorRoteiro:
-    def __init__(self, api_key=None, modelo="gpt-4o"):
+    def __init__(self, api_key=None, modelo="gpt-4o-mini"):
         self._load_env()
         self.client = openai.OpenAI(
             api_key=api_key or os.getenv('OPENAI_API_KEY')
