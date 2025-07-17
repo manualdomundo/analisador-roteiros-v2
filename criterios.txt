@@ -1,7 +1,10 @@
-Linguagem Adequada
+Linguagem falada
+O roteiro faz uso da linguagem falada? O texto não pode parecer uma matéria de jornal. Ele foi feito para ser falado luidamente, com palavras simples.
+
+Vocabulário acessível
 O roteiro usa linguagem informal e acessível, evitando palavras complexas ou técnicas que possam dificultar o entendimento do público-alvo?
 
-Pronomes e verbos
+Ênclises
 O texto evita o uso de ênclises (exemplos: chama-se no lugar de "se chama" ou "gasta-se" no lugar de "se gasta")? 
 
 Verbos
