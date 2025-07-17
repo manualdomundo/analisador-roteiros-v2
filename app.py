@@ -37,7 +37,7 @@ def main():
         api_key = st.text_input(
             "Chave OpenAI API", 
             type="password",
-            value=os.getenv('OPENAI_API_KEY', ''),
+            placeholder="sk-proj-...",
             help="Sua chave da API OpenAI"
         )
         
