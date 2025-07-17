@@ -184,34 +184,23 @@ def mostrar_resultados(resultados, analisador, modelo_gpt, criterios_disponiveis
     else:
         st.error(f"📝 Precisa melhorar. Score: {score:.1f}%")
     
-    # Seção para editar roteiro
+    # Seção para reanálise
     st.markdown("---")
-    st.header("✏️ Editar Roteiro")
-    st.markdown("**Dica:** Edite o texto abaixo com base no relatório e analise novamente!")
+    st.header("🔄 Nova Análise")
+    st.markdown("**Dica:** Edite o roteiro acima e clique no botão abaixo para analisar novamente!")
     
-    # Caixa de texto editável com o roteiro atual
-    roteiro_editado = st.text_area(
-        "Roteiro editado:",
-        value=st.session_state.roteiro_content,
-        height=300,
-        key="roteiro_editado",
-        help="Edite seu roteiro com base nas sugestões do relatório"
-    )
-    
-    # Botão para analisar novamente
-    if st.button("🔄 Analisar Roteiro Editado", type="secondary", use_container_width=True):
-        if roteiro_editado.strip():
-            # Atualizar session state com texto editado
-            st.session_state.roteiro_content = roteiro_editado
-            
-            # Atualizar critérios selecionados com base na próxima análise
-            if 'proxima_analise_criterios' in st.session_state:
-                st.session_state.criterios_selecionados = st.session_state.proxima_analise_criterios.copy()
-            
-            # Reanalizar com texto editado
+    # Indicar se há critérios para próxima análise
+    if 'proxima_analise_criterios' in st.session_state:
+        criterios_marcados_prox = sum(1 for selecionado in st.session_state.proxima_analise_criterios.values() if selecionado)
+        total_criterios_prox = len(st.session_state.proxima_analise_criterios)
+        st.caption(f"📊 {criterios_marcados_prox}/{total_criterios_prox} critérios marcados para próxima análise")
+        
+        # Flag para indicar que deve reanalizar
+        if st.button("🔄 Analisar Novamente", type="secondary", use_container_width=True):
+            st.session_state.reanalizar = True
             st.rerun()
-        else:
-            st.error("❌ O roteiro editado não pode estar vazio!")
+    else:
+        st.info("ℹ️ Use os checkboxes acima para selecionar critérios e depois clique aqui para analisar novamente.")
     
     # Seção de logs das requisições
     st.markdown("---")
@@ -489,6 +478,21 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
         criterios_marcados = sum(1 for selecionado in criterios_selecionados.values() if selecionado)
         
         st.caption(f"📊 {criterios_marcados}/{total_criterios} critérios selecionados")
+        
+        # Verificar se deve reanalizar (flag setado pelos resultados)
+        deve_reanalizar = st.session_state.get('reanalizar', False)
+        if deve_reanalizar:
+            # Limpar flag
+            st.session_state.reanalizar = False
+            
+            # Atualizar critérios com base na próxima análise
+            if 'proxima_analise_criterios' in st.session_state:
+                st.session_state.criterios_selecionados = st.session_state.proxima_analise_criterios.copy()
+                criterios_selecionados = st.session_state.criterios_selecionados
+                criterios_marcados = sum(1 for selecionado in criterios_selecionados.values() if selecionado)
+            
+            if criterios_marcados > 0:
+                executar_analise_paralela(roteiro_content, modelo_gpt, criterios_selecionados, criterios_disponiveis)
         
         # Botão para analisar
         if st.button("🔍 Analisar Roteiro", type="primary", use_container_width=True):
