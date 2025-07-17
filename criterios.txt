@@ -4,7 +4,7 @@ Fica claro no texto o que é o grande destaque?
 Conversa com o público
 O texto conversa com o público? Faz perguntas, chama o público? Fica claro que é uma interação?
 
-Pronúncia
+Indicação de pronúncia
 Se houver palavras estrangeiras de difícil pronúncia para quem fala português, a pronúncia está explicada?
 
 Texto com valor
@@ -16,10 +16,10 @@ O roteiro faz uso da linguagem falada? O texto não pode parecer uma matéria de
 Vocabulário acessível
 O roteiro usa linguagem informal e acessível, evitando palavras complexas ou técnicas que possam dificultar o entendimento do público-alvo? Caso haja sugestões de melhora, seja específico. Cite exemplos do texto.
 
-Ênclises
+Ausência de ênclises
 O texto evita o uso de ênclises? Exemplos: deve-se usar "se chama" no lugar de "chama-se", p-ois é um texto de linguagem informal. Não dê sugestões que deixem o texto mais formal.
 
-Verbos
+Auseência de 1a pessoa plural
 O texto deve evitar o uso de verbos conjugados na primeira pessoa do plural (com exceção de "vamos" e "estamos")? Lembrando que "a gente" não é primeira pessoa do plural, e o uso de pronomes na primeiroa pessoa do plural, como "nosso" está liberado.
 
 Gancho Inicial
@@ -31,7 +31,7 @@ O roteiro possui uma estrutura clara com começo, meio e fim bem definidos?
 Call-to-Action
 Há um call-to-action claro e específico? Pode ser uma chamada para comprar um livro do Manual do Mundo, um serviço de um patrocinador, um pedido de like (ou joinha) ou um pedido de inscrição no canal do Manual do Mundo.
 
-Checagem
+Checagem de dados
 Há dados que parecem estar errados?
 
 Humor
