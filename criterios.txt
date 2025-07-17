@@ -2,7 +2,7 @@ Linguagem Adequada
 O roteiro usa linguagem informal e acessível, evitando palavras complexas ou técnicas que possam dificultar o entendimento do público-alvo?
 
 Pronomes e verbos
-O texto evita o uso de ênclises? Evita uso de verbos na primeira pessoa do plural (com exceção de "vamos" e "estamos")?
+O texto evita o uso de ênclises (exemplos: chama-se no lugar de "se chama")? Evita uso de verbos na primeira pessoa do plural (com exceção de "vamos" e "estamos")?
 
 Gancho Inicial
 O roteiro apresenta ganchos suficientes e envolventes nos primeiros 10-15 segundos para capturar a atenção do espectador? Caso não apresente, dê sugestões de ganchos interessantes.
