@@ -196,7 +196,7 @@ def mostrar_resultados(resultados, analisador, modelo_gpt, criterios_disponiveis
         st.caption(f"📊 {criterios_marcados_prox}/{total_criterios_prox} critérios marcados para próxima análise")
         
         # Flag para indicar que deve reanalizar
-        if st.button("🔄 Analisar Novamente", type="secondary", use_container_width=True):
+        if st.button("🔄 Analisar Novamente", type="secondary", use_container_width=True, key="reanalise_resultados"):
             st.session_state.reanalizar = True
             st.rerun()
     else:
@@ -494,12 +494,24 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
             if criterios_marcados > 0:
                 executar_analise_paralela(roteiro_content, modelo_gpt, criterios_selecionados, criterios_disponiveis)
         
-        # Botão para analisar
-        if st.button("🔍 Analisar Roteiro", type="primary", use_container_width=True):
-            if criterios_marcados == 0:
-                st.error("❌ Selecione pelo menos um critério para análise!")
+        # Botões para analisar
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            if st.button("🔍 Analisar Roteiro", type="primary", use_container_width=True):
+                if criterios_marcados == 0:
+                    st.error("❌ Selecione pelo menos um critério para análise!")
+                else:
+                    executar_analise_paralela(roteiro_content, modelo_gpt, criterios_selecionados, criterios_disponiveis)
+        
+        with col2:
+            # Mostrar botão de reanálise se já existem resultados
+            if 'ultimos_resultados' in st.session_state and st.session_state.ultimos_resultados:
+                if st.button("🔄 Analisar Novamente", type="secondary", use_container_width=True, key="reanalise_topo"):
+                    st.session_state.reanalizar = True
+                    st.rerun()
             else:
-                executar_analise_paralela(roteiro_content, modelo_gpt, criterios_selecionados, criterios_disponiveis)
+                st.empty()  # Manter layout consistente
     
     else:
         st.warning("⚠️ Digite ou cole seu roteiro para começar a análise!")
