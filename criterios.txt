@@ -5,7 +5,7 @@ Vocabulário acessível
 O roteiro usa linguagem informal e acessível, evitando palavras complexas ou técnicas que possam dificultar o entendimento do público-alvo? Caso haja sugestões de melhora, seja específico. Cite exemplos do texto.
 
 Ênclises
-O texto evita o uso de ênclises (exemplos: chama-se no lugar de "se chama" ou "gasta-se" no lugar de "se gasta")? 
+O texto evita o uso de ênclises? Exemplos: deve-se usar "se chama" no lugar de "chama-se", p-ois é um texto de linguagem informal. Não dê sugestões que deixem o texto mais formal.
 
 Verbos
 O texto deve evitar o uso de verbos conjugados na primeira pessoa do plural (com exceção de "vamos" e "estamos")? Lembrando que "a gente" não é primeira pessoa do plural, e o uso de pronomes na primeiroa pessoa do plural, como "nosso" está liberado.
@@ -20,7 +20,7 @@ Call-to-Action
 Há um call-to-action claro e específico? Pode ser uma chamada para comprar um livro do Manual do Mundo, um serviço de um patrocinador, um pedido de like (ou joinha) ou um pedido de inscrição no canal do Manual do Mundo.
 
 Checagem
-Há dados que parecem estar errados ou que sejam sensíveis e pareçam carecer de uma análise mais profunda?
+Há dados que parecem estar errados?
 
 Humor
 O texto tem humor? Há alguma piada, comparação engraçada, exagero proposital, quebra de expectativa, autoironia etc? Se não tiver, sugerir algumas mudanças usando exemplos do texto.
