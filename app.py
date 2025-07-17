@@ -1,6 +1,5 @@
 import streamlit as st
 import os
-from io import StringIO
 from analisador import AnalisadorRoteiro
 
 def carregar_env():
@@ -67,34 +66,59 @@ def main():
         st.markdown("### 📊 Como usar:")
         st.markdown("1. Insira sua chave OpenAI")
         st.markdown("2. Escolha o modelo GPT")
-        st.markdown("3. Faça upload do roteiro (.txt)")
+        st.markdown("3. Cole/digite seu roteiro")
         st.markdown("4. Clique em 'Analisar Roteiro'")
-        st.markdown("5. Veja o relatório na tela")
+        st.markdown("5. Veja o relatório e edite o texto")
+        st.markdown("6. Analise novamente para refinar")
     
     # Verificar se API key está configurada
     if not os.getenv('OPENAI_API_KEY'):
         st.error("❌ Configure sua chave OpenAI API na barra lateral!")
         st.stop()
     
-    # Upload do arquivo
-    st.header("📁 Upload do Roteiro")
-    uploaded_file = st.file_uploader(
-        "Escolha um arquivo de roteiro (.txt)", 
-        type=['txt'],
-        help="Faça upload do arquivo de texto com seu roteiro"
+    # Caixa de texto para roteiro
+    st.header("📝 Roteiro do Vídeo")
+    
+    # Texto de exemplo/placeholder
+    texto_exemplo = """[EXEMPLO - Substitua pelo seu roteiro]
+
+[ABERTURA - 0:00-0:15]
+Olá pessoal! Vocês sabiam que...
+
+[DESENVOLVIMENTO - 0:15-2:00]
+Primeiro vamos entender...
+
+[FECHAMENTO - 2:00-2:30]
+E aí, gostaram? Deixem um like e se inscrevam!"""
+    
+    # Inicializar session state para o roteiro
+    if 'roteiro_content' not in st.session_state:
+        st.session_state.roteiro_content = ""
+    
+    # Caixa de texto editável
+    roteiro_content = st.text_area(
+        "Cole ou digite seu roteiro aqui:",
+        value=st.session_state.roteiro_content,
+        height=300,
+        placeholder=texto_exemplo,
+        help="Cole seu roteiro aqui ou digite diretamente. Você pode editar o texto após a análise.",
+        key="roteiro_input"
     )
     
-    if uploaded_file is not None:
-        # Ler conteúdo do arquivo
-        stringio = StringIO(uploaded_file.getvalue().decode("utf-8"))
-        roteiro_content = stringio.read()
-        
-        # Mostrar prévia do roteiro
-        st.header("📄 Prévia do Roteiro")
-        with st.expander("Ver conteúdo do roteiro", expanded=False):
-            st.text_area("Conteúdo:", roteiro_content, height=200, disabled=True)
-        
-        st.markdown(f"**Tamanho:** {len(roteiro_content)} caracteres")
+    # Atualizar session state
+    st.session_state.roteiro_content = roteiro_content
+    
+    # Mostrar estatísticas do roteiro
+    if roteiro_content:
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Caracteres", len(roteiro_content))
+        with col2:
+            palavras = len(roteiro_content.split())
+            st.metric("Palavras", palavras)
+        with col3:
+            linhas = len(roteiro_content.splitlines())
+            st.metric("Linhas", linhas)
         
         # Botão para analisar
         if st.button("🔍 Analisar Roteiro", type="primary", use_container_width=True):
@@ -195,6 +219,30 @@ def main():
                 st.warning(f"👍 Bom! Score: {score:.1f}%")
             else:
                 st.error(f"📝 Precisa melhorar. Score: {score:.1f}%")
+            
+            # Seção para editar roteiro
+            st.markdown("---")
+            st.header("✏️ Editar Roteiro")
+            st.markdown("**Dica:** Edite o texto abaixo com base no relatório e analise novamente!")
+            
+            # Caixa de texto editável com o roteiro atual
+            roteiro_editado = st.text_area(
+                "Roteiro editado:",
+                value=roteiro_content,
+                height=300,
+                key="roteiro_editado",
+                help="Edite seu roteiro com base nas sugestões do relatório"
+            )
+            
+            # Botão para analisar novamente
+            if st.button("🔄 Analisar Roteiro Editado", type="secondary", use_container_width=True):
+                if roteiro_editado.strip():
+                    # Atualizar session state com texto editado
+                    st.session_state.roteiro_content = roteiro_editado
+                    # Reanalizar com texto editado
+                    st.rerun()
+                else:
+                    st.error("❌ O roteiro editado não pode estar vazio!")
 
 if __name__ == "__main__":
     main()
