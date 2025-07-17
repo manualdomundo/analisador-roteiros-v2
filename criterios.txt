@@ -7,6 +7,9 @@ O texto conversa com o público? Faz perguntas, chama o público? Fica claro que
 Pronúncia
 Se houver palavras estrangeiras de difícil pronúncia para quem fala português, a pronúncia está explicada?
 
+Texto com valor
+Há no texto expressões vazias, frases desnecessárias ou redundantes?
+
 Linguagem falada
 O roteiro faz uso da linguagem falada? O texto não pode parecer uma matéria de jornal. Ele foi feito para ser falado luidamente, com palavras simples.
 
