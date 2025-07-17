@@ -219,17 +219,19 @@ def mostrar_resultados(resultados, analisador, modelo_gpt, criterios_disponiveis
     with col3:
         # Estimativa de custo (aproximada)
         if "gpt-4o" in modelo_gpt and "mini" not in modelo_gpt:
-            custo_estimado = (total_tokens / 1000) * 0.015  # $0.015 por 1K tokens
+            custo_usd = (total_tokens / 1000) * 0.015  # $0.015 por 1K tokens
         elif "gpt-4o-mini" in modelo_gpt:
-            custo_estimado = (total_tokens / 1000) * 0.0015  # $0.0015 por 1K tokens
+            custo_usd = (total_tokens / 1000) * 0.0015  # $0.0015 por 1K tokens
         elif "gpt-4" in modelo_gpt:
-            custo_estimado = (total_tokens / 1000) * 0.03  # $0.03 por 1K tokens
+            custo_usd = (total_tokens / 1000) * 0.03  # $0.03 por 1K tokens
         elif "gpt-3.5-turbo" in modelo_gpt:
-            custo_estimado = (total_tokens / 1000) * 0.002  # $0.002 por 1K tokens
+            custo_usd = (total_tokens / 1000) * 0.002  # $0.002 por 1K tokens
         else:
-            custo_estimado = (total_tokens / 1000) * 0.01  # Estimativa genérica
+            custo_usd = (total_tokens / 1000) * 0.01  # Estimativa genérica
         
-        st.metric("Custo Estimado", f"${custo_estimado:.4f}")
+        # Converter para reais (USD * 6)
+        custo_brl = custo_usd * 6
+        st.metric("Custo Estimado", f"R$ {custo_brl:.3f}")
     
     # Tabela detalhada dos logs
     if st.expander("🔍 Detalhes das Requisições", expanded=False):
