@@ -80,6 +80,11 @@ def executar_analise_paralela(roteiro_content, modelo_gpt, criterios_selecionado
             # Limpar arquivo temporário
             os.unlink(arquivo_temp)
     
+    # Salvar resultados no session_state para persistir na interface
+    st.session_state.ultimos_resultados = resultados
+    st.session_state.ultimo_analisador = analisador
+    st.session_state.ultimo_modelo = modelo_gpt
+    
     # Mostrar resultados
     mostrar_resultados(resultados, analisador, modelo_gpt, criterios_disponiveis)
 
@@ -494,6 +499,24 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
     
     else:
         st.warning("⚠️ Digite ou cole seu roteiro para começar a análise!")
+    
+    # Mostrar resultados salvos se existirem
+    if 'ultimos_resultados' in st.session_state and st.session_state.ultimos_resultados:
+        st.markdown("---")
+        # Garantir que temos critérios disponíveis
+        if not os.path.exists('criterios.txt'):
+            st.error("❌ Arquivo criterios.txt não encontrado!")
+        else:
+            try:
+                criterios_para_resultados = carregar_criterios()
+                mostrar_resultados(
+                    st.session_state.ultimos_resultados, 
+                    st.session_state.ultimo_analisador, 
+                    st.session_state.ultimo_modelo, 
+                    criterios_para_resultados
+                )
+            except Exception as e:
+                st.error(f"❌ Erro ao mostrar resultados: {e}")
 
 if __name__ == "__main__":
     main()
