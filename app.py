@@ -233,36 +233,6 @@ def mostrar_resultados(resultados, analisador, modelo_gpt, criterios_disponiveis
         custo_brl = custo_usd * 6
         st.metric("Custo Estimado", f"R$ {custo_brl:.3f}")
     
-    # Tabela detalhada dos logs
-    if st.expander("🔍 Detalhes das Requisições", expanded=False):
-        for i, log in enumerate(analisador.log_requisicoes, 1):
-            st.subheader(f"Requisição {i} - {log['timestamp']}")
-            
-            # Informações básicas
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.write(f"**Modelo:** {log['modelo']}")
-                st.write(f"**Tipo:** {log['tipo']}")
-            with col2:
-                st.write(f"**Tokens Input:** {log['tokens_input']}")
-                st.write(f"**Tokens Output:** {log['tokens_output']}")
-            with col3:
-                st.write(f"**Tokens Total:** {log['tokens_total']}")
-                st.write(f"**Chars Prompt:** {log['prompt_chars']}")
-            
-            # Mostrar prompt (truncado)
-            st.write("**Prompt:**")
-            st.code(log['prompt'], language="text")
-            
-            # Mostrar resposta
-            st.write("**Resposta:**")
-            if log['tipo'].startswith('ERRO'):
-                st.error(log['resposta'])
-            else:
-                st.success(log['resposta'])
-            
-            st.markdown("---")
-    
     # Recomendações de otimização
     st.subheader("💡 Recomendações de Otimização")
     
