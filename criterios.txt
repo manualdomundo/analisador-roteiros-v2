@@ -9,3 +9,9 @@ O roteiro possui uma estrutura clara com começo, meio e fim bem definidos?
 
 Call-to-Action
 Há um call-to-action claro e específico no final do vídeo? Pode ser uma chamada para comprar um livro do Manual do Mundo, um serviço de um patrocinador, um pedido de like (ou joinha) ou um pedido de inscrição no canal do Manual do Mundo.
+
+Checagem
+Há dados que parecem estar errados ou que sejam sensíveis e pareçam carecer de uma análise mais profunda?
+
+Humor
+O texto tem humor? Há alguma piada, comparação engraçada, exagero proposital etc? É importante que o texto tenha humor.
