@@ -8,7 +8,7 @@ Indicação de pronúncia
 Se houver palavras estrangeiras de difícil pronúncia para quem fala português, a pronúncia está explicada?
 
 Texto com valor
-Há no texto expressões vazias, frases desnecessárias ou redundantes?
+Há no texto expressões vazias, frases desnecessárias ou redundantes? Desconsidere textos que têm função cômica ou que servem para "prender" o público.
 
 Linguagem falada
 O roteiro faz uso da linguagem falada? O texto não pode parecer uma matéria de jornal. Ele foi feito para ser falado luidamente, com palavras simples.
