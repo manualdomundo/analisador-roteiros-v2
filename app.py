@@ -15,55 +15,36 @@ def carregar_env():
     except FileNotFoundError:
         pass
 
-def executar_analise_sequencial(roteiro_content, modelo_gpt):
-    """Executa análise sequencial do roteiro"""
-    # Verificar se há critérios
-    if not os.path.exists('criterios.txt'):
-        st.error("❌ Arquivo criterios.txt não encontrado!")
-        st.stop()
-    
-    # Inicializar analisador
+def carregar_criterios():
+    """Carrega critérios do arquivo criterios.txt"""
     try:
-        analisador = AnalisadorRoteiro(modelo=modelo_gpt.strip())
-    except Exception as e:
-        st.error(f"❌ Erro ao inicializar analisador: {e}")
-        st.stop()
-    
-    # Ler critérios
-    criterios = analisador.ler_criterios()
-    if not criterios:
-        st.error("❌ Nenhum critério encontrado!")
-        st.stop()
-    
-    # Criar progress bar
-    progress_bar = st.progress(0)
-    status_text = st.empty()
-    
-    # Executar análise
-    with st.spinner("Analisando roteiro (sequencial)..."):
-        resultados = []
+        with open('criterios.txt', 'r', encoding='utf-8') as f:
+            linhas = [linha.strip() for linha in f.readlines()]
         
-        for i, criterio in enumerate(criterios):
-            # Atualizar progress
-            progress = (i + 1) / len(criterios)
-            progress_bar.progress(progress)
-            
-            titulo = criterio['titulo'] if isinstance(criterio, dict) else criterio[:50]
-            status_text.text(f"Analisando: {titulo}")
-            
-            # Analisar critério
-            resultado = analisador.analisar_criterio(roteiro_content, criterio)
-            resultados.append({
-                'criterio': criterio,
-                'resultado': resultado
-            })
+        criterios = []
+        i = 0
+        while i < len(linhas):
+            if linhas[i]:  # Linha não vazia (título)
+                titulo = linhas[i]
+                descricao = ""
+                i += 1
+                
+                # Ler descrição (próximas linhas até linha vazia ou fim)
+                while i < len(linhas) and linhas[i]:
+                    descricao += linhas[i] + " "
+                    i += 1
+                
+                criterios.append({
+                    'titulo': titulo,
+                    'descricao': descricao.strip()
+                })
+            else:
+                i += 1
         
-        # Limpar status
-        progress_bar.empty()
-        status_text.empty()
-    
-    # Mostrar resultados
-    mostrar_resultados(resultados, analisador, modelo_gpt)
+        return criterios
+    except FileNotFoundError:
+        return []
+
 
 def executar_analise_paralela(roteiro_content, modelo_gpt, criterios_selecionados, criterios_disponiveis):
     """Executa análise paralela do roteiro apenas com critérios selecionados"""
@@ -463,8 +444,7 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
         
         # Carregar critérios
         try:
-            analisador_temp = AnalisadorRoteiro()
-            criterios_disponiveis = analisador_temp.ler_criterios()
+            criterios_disponiveis = carregar_criterios()
         except Exception as e:
             st.error(f"❌ Erro ao carregar critérios: {e}")
             st.stop()
