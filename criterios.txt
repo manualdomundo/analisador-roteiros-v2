@@ -5,7 +5,7 @@ Pronomes e verbos
 O texto evita o uso de ênclises (exemplos: chama-se no lugar de "se chama" ou "gasta-se" no lugar de "se gasta")? 
 
 Verbos
-O texrto evita uso de verbos na primeira pessoa do plural (com exceção de "vamos" e "estamos")? Eles devem ser substituídos por "a gente".
+O texrto evita uso de verbos conjugados na primeira pessoa do plural (com exceção de "vamos" e "estamos")? Lembrando que "a gente" não é primeira pessoa do plural, e o uso de pronomes na primeiroa pessoa do plural, como "nosso" está liberado.
 
 Gancho Inicial
 O roteiro apresenta ganchos suficientes e envolventes nos primeiros 10-15 segundos para capturar a atenção do espectador? Caso não apresente, dê sugestões de ganchos interessantes.
@@ -20,4 +20,4 @@ Checagem
 Há dados que parecem estar errados ou que sejam sensíveis e pareçam carecer de uma análise mais profunda?
 
 Humor
-O texto tem humor? Há alguma piada, comparação engraçada, exagero proposital etc? É importante que o texto tenha humor.
+O texto tem humor? Há alguma piada, comparação engraçada, exagero proposital, quebra de expectativa, autoironia etc? É importante que o texto tenha humor.
