@@ -47,20 +47,61 @@ def main():
         
         # Seletor de modelo GPT
         st.header("🤖 Modelo GPT")
-        modelo_gpt = st.selectbox(
-            "Escolha o modelo:",
-            options=["gpt-4o", "gpt-4o-mini", "gpt-3.5-turbo"],
+        
+        # Opção entre predefinidos ou personalizado
+        tipo_modelo = st.radio(
+            "Escolha o tipo:",
+            options=["Modelos Predefinidos", "Modelo Personalizado"],
             index=0,
-            help="GPT-4o: Mais preciso, mais caro | GPT-4o-mini: Equilibrado | GPT-3.5-turbo: Mais rápido, mais barato"
+            help="Use modelos predefinidos para facilidade ou digite um modelo específico"
         )
         
-        # Mostrar informações do modelo
-        if modelo_gpt == "gpt-4o":
-            st.info("🎯 **GPT-4o**: Máxima precisão e qualidade")
-        elif modelo_gpt == "gpt-4o-mini":
-            st.info("⚡ **GPT-4o-mini**: Equilibrio entre qualidade e custo")
+        if tipo_modelo == "Modelos Predefinidos":
+            modelo_gpt = st.selectbox(
+                "Escolha o modelo:",
+                options=["gpt-4o", "gpt-4o-mini", "gpt-3.5-turbo", "gpt-4-turbo"],
+                index=0,
+                help="GPT-4o: Mais preciso | GPT-4o-mini: Equilibrado | GPT-3.5-turbo: Econômico | GPT-4-turbo: Versão anterior"
+            )
+            
+            # Mostrar informações do modelo
+            if modelo_gpt == "gpt-4o":
+                st.info("🎯 **GPT-4o**: Máxima precisão e qualidade")
+            elif modelo_gpt == "gpt-4o-mini":
+                st.info("⚡ **GPT-4o-mini**: Equilibrio entre qualidade e custo")
+            elif modelo_gpt == "gpt-4-turbo":
+                st.info("🚀 **GPT-4-turbo**: Versão anterior do GPT-4")
+            else:
+                st.info("💰 **GPT-3.5-turbo**: Mais econômico")
         else:
-            st.info("💰 **GPT-3.5-turbo**: Mais econômico")
+            modelo_gpt = st.text_input(
+                "Digite o modelo:",
+                value="gpt-4o",
+                help="Digite qualquer modelo OpenAI válido (ex: gpt-4, gpt-3.5-turbo-1106, etc.)",
+                placeholder="gpt-4o"
+            )
+            
+            if modelo_gpt:
+                st.info(f"🛠️ **Modelo Personalizado**: {modelo_gpt}")
+            else:
+                st.warning("⚠️ Digite um modelo válido")
+            
+            # Sugestões de modelos
+            with st.expander("📋 Modelos Comuns", expanded=False):
+                st.markdown("**GPT-4 Family:**")
+                st.markdown("- `gpt-4o` - Mais recente")
+                st.markdown("- `gpt-4o-mini` - Versão menor")
+                st.markdown("- `gpt-4-turbo` - Versão anterior")
+                st.markdown("- `gpt-4` - Versão original")
+                
+                st.markdown("**GPT-3.5 Family:**")
+                st.markdown("- `gpt-3.5-turbo` - Padrão")
+                st.markdown("- `gpt-3.5-turbo-1106` - Versão específica")
+                st.markdown("- `gpt-3.5-turbo-16k` - Contexto maior")
+                
+                st.markdown("**Outros:**")
+                st.markdown("- `gpt-4-32k` - Contexto muito grande")
+                st.markdown("- `gpt-3.5-turbo-instruct` - Versão instruct")
         
         st.markdown("---")
         st.markdown("### 📊 Como usar:")
@@ -74,6 +115,11 @@ def main():
     # Verificar se API key está configurada
     if not os.getenv('OPENAI_API_KEY'):
         st.error("❌ Configure sua chave OpenAI API na barra lateral!")
+        st.stop()
+    
+    # Verificar se modelo foi especificado
+    if not modelo_gpt or modelo_gpt.strip() == "":
+        st.error("❌ Especifique um modelo GPT na barra lateral!")
         st.stop()
     
     # Caixa de texto para roteiro
@@ -130,7 +176,7 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
             
             # Inicializar analisador
             try:
-                analisador = AnalisadorRoteiro(modelo=modelo_gpt)
+                analisador = AnalisadorRoteiro(modelo=modelo_gpt.strip())
             except Exception as e:
                 st.error(f"❌ Erro ao inicializar analisador: {e}")
                 st.stop()
@@ -260,12 +306,16 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
                 st.metric("Total de Tokens", total_tokens)
             with col3:
                 # Estimativa de custo (aproximada)
-                if modelo_gpt == "gpt-4o":
+                if "gpt-4o" in modelo_gpt and "mini" not in modelo_gpt:
                     custo_estimado = (total_tokens / 1000) * 0.015  # $0.015 por 1K tokens
-                elif modelo_gpt == "gpt-4o-mini":
+                elif "gpt-4o-mini" in modelo_gpt:
                     custo_estimado = (total_tokens / 1000) * 0.0015  # $0.0015 por 1K tokens
-                else:
+                elif "gpt-4" in modelo_gpt:
+                    custo_estimado = (total_tokens / 1000) * 0.03  # $0.03 por 1K tokens
+                elif "gpt-3.5-turbo" in modelo_gpt:
                     custo_estimado = (total_tokens / 1000) * 0.002  # $0.002 por 1K tokens
+                else:
+                    custo_estimado = (total_tokens / 1000) * 0.01  # Estimativa genérica
                 
                 st.metric("Custo Estimado", f"${custo_estimado:.4f}")
             
