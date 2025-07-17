@@ -3,11 +3,12 @@ import openai
 from datetime import datetime
 
 class AnalisadorRoteiro:
-    def __init__(self, api_key=None):
+    def __init__(self, api_key=None, modelo="gpt-4o"):
         self._load_env()
         self.client = openai.OpenAI(
             api_key=api_key or os.getenv('OPENAI_API_KEY')
         )
+        self.modelo = modelo
     
     def _load_env(self):
         """Carrega variáveis do arquivo .env"""
@@ -135,7 +136,7 @@ class AnalisadorRoteiro:
         
         try:
             response = self.client.chat.completions.create(
-                model="gpt-4o",
+                model=self.modelo,
                 messages=[
                     {"role": "system", "content": "Você é um especialista em análise de roteiros de vídeo. Seja preciso e conciso."},
                     {"role": "user", "content": prompt}
@@ -171,7 +172,7 @@ class AnalisadorRoteiro:
         
         try:
             response = self.client.chat.completions.create(
-                model="gpt-4o",
+                model=self.modelo,
                 messages=[
                     {"role": "system", "content": "Você é um especialista em análise de roteiros de vídeo."},
                     {"role": "user", "content": prompt}

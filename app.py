@@ -45,11 +45,31 @@ def main():
             os.environ['OPENAI_API_KEY'] = api_key
         
         st.markdown("---")
+        
+        # Seletor de modelo GPT
+        st.header("🤖 Modelo GPT")
+        modelo_gpt = st.selectbox(
+            "Escolha o modelo:",
+            options=["gpt-4o", "gpt-4o-mini", "gpt-3.5-turbo"],
+            index=0,
+            help="GPT-4o: Mais preciso, mais caro | GPT-4o-mini: Equilibrado | GPT-3.5-turbo: Mais rápido, mais barato"
+        )
+        
+        # Mostrar informações do modelo
+        if modelo_gpt == "gpt-4o":
+            st.info("🎯 **GPT-4o**: Máxima precisão e qualidade")
+        elif modelo_gpt == "gpt-4o-mini":
+            st.info("⚡ **GPT-4o-mini**: Equilibrio entre qualidade e custo")
+        else:
+            st.info("💰 **GPT-3.5-turbo**: Mais econômico")
+        
+        st.markdown("---")
         st.markdown("### 📊 Como usar:")
         st.markdown("1. Insira sua chave OpenAI")
-        st.markdown("2. Faça upload do roteiro (.txt)")
-        st.markdown("3. Clique em 'Analisar Roteiro'")
-        st.markdown("4. Veja o relatório na tela")
+        st.markdown("2. Escolha o modelo GPT")
+        st.markdown("3. Faça upload do roteiro (.txt)")
+        st.markdown("4. Clique em 'Analisar Roteiro'")
+        st.markdown("5. Veja o relatório na tela")
     
     # Verificar se API key está configurada
     if not os.getenv('OPENAI_API_KEY'):
@@ -86,7 +106,7 @@ def main():
             
             # Inicializar analisador
             try:
-                analisador = AnalisadorRoteiro()
+                analisador = AnalisadorRoteiro(modelo=modelo_gpt)
             except Exception as e:
                 st.error(f"❌ Erro ao inicializar analisador: {e}")
                 st.stop()
@@ -127,6 +147,7 @@ def main():
             # Mostrar resultados
             st.success("✅ Análise concluída!")
             st.header("📊 Relatório de Análise")
+            st.caption(f"Modelo usado: **{modelo_gpt}**")
             
             # Contadores
             aprovados = 0
