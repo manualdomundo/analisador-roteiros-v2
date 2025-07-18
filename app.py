@@ -399,29 +399,32 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
             st.metric("Linhas", linhas)
         
         # Mostrar seleção de critérios apenas se nunca foi analisado antes
-        mostrar_criterios = not st.session_state.get('ja_analisou', False)
+        ja_analisou = st.session_state.get('ja_analisou', False)
+        mostrar_criterios = not ja_analisou
+        
+        # Debug temporário
+        st.caption(f"Debug: ja_analisou={ja_analisou}, mostrar_criterios={mostrar_criterios}")
+        
+        # Carregar critérios sempre (independente de mostrar ou não)
+        if not os.path.exists('criterios.txt'):
+            st.error("❌ Arquivo criterios.txt não encontrado!")
+            st.stop()
+        
+        try:
+            criterios_disponiveis = carregar_criterios()
+        except Exception as e:
+            st.error(f"❌ Erro ao carregar critérios: {e}")
+            st.stop()
+        
+        if not criterios_disponiveis:
+            st.error("❌ Nenhum critério encontrado!")
+            st.stop()
         
         if mostrar_criterios:
             # Seção de seleção de critérios
             st.markdown("---")
             st.header("📋 Critérios de Análise")
             st.markdown("**Selecione os critérios que deseja analisar:**")
-            
-            # Verificar se há critérios
-            if not os.path.exists('criterios.txt'):
-                st.error("❌ Arquivo criterios.txt não encontrado!")
-                st.stop()
-            
-            # Carregar critérios
-            try:
-                criterios_disponiveis = carregar_criterios()
-            except Exception as e:
-                st.error(f"❌ Erro ao carregar critérios: {e}")
-                st.stop()
-            
-            if not criterios_disponiveis:
-                st.error("❌ Nenhum critério encontrado!")
-                st.stop()
             
             # Inicializar estado dos critérios se não existir
             if 'criterios_selecionados' not in st.session_state:
@@ -508,12 +511,7 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
                         del st.session_state[key]
                 st.rerun()
             
-            # Garantir que temos critérios disponíveis para mostrar
-            try:
-                criterios_disponiveis = carregar_criterios()
-            except Exception as e:
-                st.error(f"❌ Erro ao carregar critérios: {e}")
-                criterios_disponiveis = []
+            # Critérios já foram carregados acima
         
         # Executar análise se o flag analisando estiver ativo
         if st.session_state.get('analisando', False):
