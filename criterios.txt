@@ -5,7 +5,7 @@ Conversa com o público
 O texto conversa com o público? Faz perguntas, chama o público? Fica claro que é uma interação?
 
 Indicação de pronúncia
-Se houver palavras estrangeiras de difícil pronúncia para quem fala português, a pronúncia está explicada?
+Se houver palavras estrangeiras de difícil pronúncia para quem fala português, a pronúncia está explicada? Considere apenas palavras de fora da língua portuguesa.
 
 Texto com valor
 Há no texto expressões vazias, frases desnecessárias ou redundantes? Desconsidere textos que têm função cômica ou que servem para "prender" o público.
