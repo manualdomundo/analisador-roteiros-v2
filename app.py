@@ -398,10 +398,9 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
             linhas = len(roteiro_content.splitlines())
             st.metric("Linhas", linhas)
         
-        # Mostrar seleção de critérios apenas se não há resultados ou se deve reanalizar
+        # Mostrar seleção de critérios apenas se não há resultados
         mostrar_criterios = ('ultimos_resultados' not in st.session_state or 
-                           not st.session_state.ultimos_resultados or
-                           st.session_state.get('reanalizar', False))
+                           not st.session_state.ultimos_resultados)
         
         if mostrar_criterios:
             # Seção de seleção de critérios
@@ -492,7 +491,15 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
                     st.empty()  # Manter layout consistente
         
         else:
-            # Se há resultados, garantir que temos critérios disponíveis para mostrar
+            # Se há resultados, mostrar botão para nova análise com critérios diferentes
+            st.markdown("---")
+            if st.button("🔄 Nova Análise com Critérios Diferentes", type="secondary", use_container_width=True):
+                # Limpar resultados para mostrar critérios novamente
+                if 'ultimos_resultados' in st.session_state:
+                    del st.session_state['ultimos_resultados']
+                st.rerun()
+            
+            # Garantir que temos critérios disponíveis para mostrar
             try:
                 criterios_disponiveis = carregar_criterios()
             except Exception as e:
