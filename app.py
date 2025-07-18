@@ -398,10 +398,8 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
             linhas = len(roteiro_content.splitlines())
             st.metric("Linhas", linhas)
         
-        # Mostrar seleção de critérios apenas se não há resultados e não está analisando
-        mostrar_criterios = (('ultimos_resultados' not in st.session_state or 
-                           not st.session_state.ultimos_resultados) and
-                           not st.session_state.get('analisando', False))
+        # Mostrar seleção de critérios apenas se nunca foi analisado antes
+        mostrar_criterios = not st.session_state.get('ja_analisou', False)
         
         if mostrar_criterios:
             # Seção de seleção de critérios
@@ -484,6 +482,8 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
                     if criterios_marcados == 0:
                         st.error("❌ Selecione pelo menos um critério para análise!")
                     else:
+                        # Marcar como já analisou (para nunca mais mostrar critérios)
+                        st.session_state.ja_analisou = True
                         # Marcar como analisando e recarregar página para ocultar critérios
                         st.session_state.analisando = True
                         st.rerun()
@@ -501,11 +501,11 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
             # Se há resultados, mostrar botão para nova análise com critérios diferentes
             st.markdown("---")
             if st.button("🔄 Nova Análise com Critérios Diferentes", type="secondary", use_container_width=True):
-                # Limpar resultados e flag de análise para mostrar critérios novamente
-                if 'ultimos_resultados' in st.session_state:
-                    del st.session_state['ultimos_resultados']
-                if 'analisando' in st.session_state:
-                    del st.session_state['analisando']
+                # Limpar TODOS os flags para voltar ao estado inicial
+                keys_to_delete = ['ultimos_resultados', 'analisando', 'ja_analisou', 'proxima_analise_criterios']
+                for key in keys_to_delete:
+                    if key in st.session_state:
+                        del st.session_state[key]
                 st.rerun()
             
             # Garantir que temos critérios disponíveis para mostrar
