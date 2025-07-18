@@ -138,7 +138,7 @@ def mostrar_resultados(resultados, analisador, modelo_gpt, criterios_disponiveis
         
         with col1:
             if criterio_index is not None:
-                checkbox_key = f"prox_analise_{criterio_index}"
+                checkbox_key = f"prox_analise_{criterio_index}_{i}"  # Adicionar índice do loop para unicidade
                 incluir_proxima = st.checkbox(
                     "",
                     value=saved_value,
@@ -402,8 +402,6 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
         ja_analisou = st.session_state.get('ja_analisou', False)
         mostrar_criterios = not ja_analisou
         
-        # Debug temporário
-        st.caption(f"Debug: ja_analisou={ja_analisou}, mostrar_criterios={mostrar_criterios}")
         
         # Carregar critérios sempre (independente de mostrar ou não)
         if not os.path.exists('criterios.txt'):
