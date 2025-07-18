@@ -156,6 +156,9 @@ def mostrar_resultados(resultados, analisador, modelo_gpt, criterios_disponiveis
                     key=checkbox_key,
                     help="Incluir na próxima análise"
                 )
+                # Salvar usando um índice especial para critérios não encontrados
+                special_index = f"unknown_{abs(hash(titulo))}"
+                st.session_state.proxima_analise_criterios[special_index] = incluir_proxima
         
         with col2:
             if foi_aprovado:
@@ -474,7 +477,13 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
                 
                 # Atualizar critérios com base na próxima análise
                 if 'proxima_analise_criterios' in st.session_state:
-                    st.session_state.criterios_selecionados = st.session_state.proxima_analise_criterios.copy()
+                    # Filtrar apenas critérios válidos (não os índices especiais)
+                    criterios_validos = {}
+                    for idx, selecionado in st.session_state.proxima_analise_criterios.items():
+                        if isinstance(idx, int):  # Apenas índices numéricos são válidos
+                            criterios_validos[idx] = selecionado
+                    
+                    st.session_state.criterios_selecionados = criterios_validos
                     criterios_selecionados = st.session_state.criterios_selecionados
                     criterios_marcados = sum(1 for selecionado in criterios_selecionados.values() if selecionado)
                 
@@ -500,13 +509,7 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
                         st.rerun()
             
             with col2:
-                # Mostrar botão de reanálise se já existem resultados
-                if 'ultimos_resultados' in st.session_state and st.session_state.ultimos_resultados:
-                    if st.button("🔄 Analisar Novamente", type="secondary", use_container_width=True, key="reanalise_topo"):
-                        st.session_state.reanalizar = True
-                        st.rerun()
-                else:
-                    st.empty()  # Manter layout consistente
+                st.empty()  # Manter layout consistente
         
         else:
             # Se há resultados, mostrar botão para nova análise com critérios diferentes
