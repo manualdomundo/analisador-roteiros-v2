@@ -398,9 +398,10 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
             linhas = len(roteiro_content.splitlines())
             st.metric("Linhas", linhas)
         
-        # Mostrar seleção de critérios apenas se não há resultados
-        mostrar_criterios = ('ultimos_resultados' not in st.session_state or 
-                           not st.session_state.ultimos_resultados)
+        # Mostrar seleção de critérios apenas se não há resultados e não está analisando
+        mostrar_criterios = (('ultimos_resultados' not in st.session_state or 
+                           not st.session_state.ultimos_resultados) and
+                           not st.session_state.get('analisando', False))
         
         if mostrar_criterios:
             # Seção de seleção de critérios
@@ -475,11 +476,17 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
             col1, col2 = st.columns(2)
             
             with col1:
-                if st.button("🔍 Analisar Roteiro", type="primary", use_container_width=True):
+                # Verificar se está analisando para desabilitar botão
+                analisando = st.session_state.get('analisando', False)
+                botao_text = "⏳ Analisando..." if analisando else "🔍 Analisar Roteiro"
+                
+                if st.button(botao_text, type="primary", use_container_width=True, disabled=analisando):
                     if criterios_marcados == 0:
                         st.error("❌ Selecione pelo menos um critério para análise!")
                     else:
-                        executar_analise_paralela(roteiro_content, modelo_gpt, criterios_selecionados, criterios_disponiveis)
+                        # Marcar como analisando e recarregar página para ocultar critérios
+                        st.session_state.analisando = True
+                        st.rerun()
             
             with col2:
                 # Mostrar botão de reanálise se já existem resultados
@@ -494,9 +501,11 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
             # Se há resultados, mostrar botão para nova análise com critérios diferentes
             st.markdown("---")
             if st.button("🔄 Nova Análise com Critérios Diferentes", type="secondary", use_container_width=True):
-                # Limpar resultados para mostrar critérios novamente
+                # Limpar resultados e flag de análise para mostrar critérios novamente
                 if 'ultimos_resultados' in st.session_state:
                     del st.session_state['ultimos_resultados']
+                if 'analisando' in st.session_state:
+                    del st.session_state['analisando']
                 st.rerun()
             
             # Garantir que temos critérios disponíveis para mostrar
@@ -505,6 +514,28 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
             except Exception as e:
                 st.error(f"❌ Erro ao carregar critérios: {e}")
                 criterios_disponiveis = []
+        
+        # Executar análise se o flag analisando estiver ativo
+        if st.session_state.get('analisando', False):
+            st.markdown("---")
+            st.info("🚀 Iniciando análise...")
+            
+            # Garantir que temos os dados necessários
+            if 'criterios_selecionados' in st.session_state:
+                criterios_selecionados = st.session_state.criterios_selecionados
+                criterios_marcados = sum(1 for selecionado in criterios_selecionados.values() if selecionado)
+                
+                if criterios_marcados > 0:
+                    # Limpar flag de análise antes de executar
+                    st.session_state.analisando = False
+                    executar_analise_paralela(roteiro_content, modelo_gpt, criterios_selecionados, criterios_disponiveis)
+                else:
+                    # Se não há critérios selecionados, limpar flag
+                    st.session_state.analisando = False
+                    st.error("❌ Selecione pelo menos um critério para análise!")
+            else:
+                # Se não há critérios, limpar flag
+                st.session_state.analisando = False
     
     else:
         st.warning("⚠️ Digite ou cole seu roteiro para começar a análise!")
