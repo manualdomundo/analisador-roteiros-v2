@@ -398,92 +398,106 @@ E aí, gostaram? Deixem um like e se inscrevam!"""
             linhas = len(roteiro_content.splitlines())
             st.metric("Linhas", linhas)
         
-        # Seção de seleção de critérios
-        st.markdown("---")
-        st.header("📋 Critérios de Análise")
-        st.markdown("**Selecione os critérios que deseja analisar:**")
+        # Mostrar seleção de critérios apenas se não há resultados ou se deve reanalizar
+        mostrar_criterios = ('ultimos_resultados' not in st.session_state or 
+                           not st.session_state.ultimos_resultados or
+                           st.session_state.get('reanalizar', False))
         
-        # Verificar se há critérios
-        if not os.path.exists('criterios.txt'):
-            st.error("❌ Arquivo criterios.txt não encontrado!")
-            st.stop()
-        
-        # Carregar critérios
-        try:
-            criterios_disponiveis = carregar_criterios()
-        except Exception as e:
-            st.error(f"❌ Erro ao carregar critérios: {e}")
-            st.stop()
-        
-        if not criterios_disponiveis:
-            st.error("❌ Nenhum critério encontrado!")
-            st.stop()
-        
-        # Inicializar estado dos critérios se não existir
-        if 'criterios_selecionados' not in st.session_state:
-            st.session_state.criterios_selecionados = {i: True for i in range(len(criterios_disponiveis))}
-        
-        # Mostrar critérios com checkboxes
-        criterios_selecionados = {}
-        for i, criterio in enumerate(criterios_disponiveis):
-            titulo = criterio['titulo'] if isinstance(criterio, dict) else criterio
-            descricao = criterio['descricao'] if isinstance(criterio, dict) else ""
+        if mostrar_criterios:
+            # Seção de seleção de critérios
+            st.markdown("---")
+            st.header("📋 Critérios de Análise")
+            st.markdown("**Selecione os critérios que deseja analisar:**")
             
-            # Usar session_state para manter o estado
-            key = f"criterio_{i}"
-            default_value = st.session_state.criterios_selecionados.get(i, True)
+            # Verificar se há critérios
+            if not os.path.exists('criterios.txt'):
+                st.error("❌ Arquivo criterios.txt não encontrado!")
+                st.stop()
             
-            selecionado = st.checkbox(
-                titulo,
-                value=default_value,
-                key=key,
-                help=descricao if descricao else None
-            )
+            # Carregar critérios
+            try:
+                criterios_disponiveis = carregar_criterios()
+            except Exception as e:
+                st.error(f"❌ Erro ao carregar critérios: {e}")
+                st.stop()
             
-            criterios_selecionados[i] = selecionado
-        
-        # Atualizar session_state
-        st.session_state.criterios_selecionados = criterios_selecionados
-        
-        # Contar critérios selecionados
-        total_criterios = len(criterios_disponiveis)
-        criterios_marcados = sum(1 for selecionado in criterios_selecionados.values() if selecionado)
-        
-        st.caption(f"📊 {criterios_marcados}/{total_criterios} critérios selecionados")
-        
-        # Verificar se deve reanalizar (flag setado pelos resultados)
-        deve_reanalizar = st.session_state.get('reanalizar', False)
-        if deve_reanalizar:
-            # Limpar flag
-            st.session_state.reanalizar = False
+            if not criterios_disponiveis:
+                st.error("❌ Nenhum critério encontrado!")
+                st.stop()
             
-            # Atualizar critérios com base na próxima análise
-            if 'proxima_analise_criterios' in st.session_state:
-                st.session_state.criterios_selecionados = st.session_state.proxima_analise_criterios.copy()
-                criterios_selecionados = st.session_state.criterios_selecionados
-                criterios_marcados = sum(1 for selecionado in criterios_selecionados.values() if selecionado)
+            # Inicializar estado dos critérios se não existir
+            if 'criterios_selecionados' not in st.session_state:
+                st.session_state.criterios_selecionados = {i: True for i in range(len(criterios_disponiveis))}
             
-            if criterios_marcados > 0:
-                executar_analise_paralela(roteiro_content, modelo_gpt, criterios_selecionados, criterios_disponiveis)
-        
-        # Botões para analisar
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            if st.button("🔍 Analisar Roteiro", type="primary", use_container_width=True):
-                if criterios_marcados == 0:
-                    st.error("❌ Selecione pelo menos um critério para análise!")
-                else:
+            # Mostrar critérios com checkboxes
+            criterios_selecionados = {}
+            for i, criterio in enumerate(criterios_disponiveis):
+                titulo = criterio['titulo'] if isinstance(criterio, dict) else criterio
+                descricao = criterio['descricao'] if isinstance(criterio, dict) else ""
+                
+                # Usar session_state para manter o estado
+                key = f"criterio_{i}"
+                default_value = st.session_state.criterios_selecionados.get(i, True)
+                
+                selecionado = st.checkbox(
+                    titulo,
+                    value=default_value,
+                    key=key,
+                    help=descricao if descricao else None
+                )
+                
+                criterios_selecionados[i] = selecionado
+            
+            # Atualizar session_state
+            st.session_state.criterios_selecionados = criterios_selecionados
+            
+            # Contar critérios selecionados
+            total_criterios = len(criterios_disponiveis)
+            criterios_marcados = sum(1 for selecionado in criterios_selecionados.values() if selecionado)
+            
+            st.caption(f"📊 {criterios_marcados}/{total_criterios} critérios selecionados")
+            
+            # Verificar se deve reanalizar (flag setado pelos resultados)
+            deve_reanalizar = st.session_state.get('reanalizar', False)
+            if deve_reanalizar:
+                # Limpar flag
+                st.session_state.reanalizar = False
+                
+                # Atualizar critérios com base na próxima análise
+                if 'proxima_analise_criterios' in st.session_state:
+                    st.session_state.criterios_selecionados = st.session_state.proxima_analise_criterios.copy()
+                    criterios_selecionados = st.session_state.criterios_selecionados
+                    criterios_marcados = sum(1 for selecionado in criterios_selecionados.values() if selecionado)
+                
+                if criterios_marcados > 0:
                     executar_analise_paralela(roteiro_content, modelo_gpt, criterios_selecionados, criterios_disponiveis)
+            
+            # Botões para analisar
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                if st.button("🔍 Analisar Roteiro", type="primary", use_container_width=True):
+                    if criterios_marcados == 0:
+                        st.error("❌ Selecione pelo menos um critério para análise!")
+                    else:
+                        executar_analise_paralela(roteiro_content, modelo_gpt, criterios_selecionados, criterios_disponiveis)
+            
+            with col2:
+                # Mostrar botão de reanálise se já existem resultados
+                if 'ultimos_resultados' in st.session_state and st.session_state.ultimos_resultados:
+                    if st.button("🔄 Analisar Novamente", type="secondary", use_container_width=True, key="reanalise_topo"):
+                        st.session_state.reanalizar = True
+                        st.rerun()
+                else:
+                    st.empty()  # Manter layout consistente
         
-        with col2:
-            # Mostrar botão de reanálise se já existem resultados
-            if 'ultimos_resultados' in st.session_state and st.session_state.ultimos_resultados:
-                if st.button("🔄 Analisar Novamente", type="secondary", use_container_width=True, key="reanalise_topo"):
-                    st.session_state.reanalizar = True
-                    st.rerun()
-            else:
-                st.empty()  # Manter layout consistente
+        else:
+            # Se há resultados, garantir que temos critérios disponíveis para mostrar
+            try:
+                criterios_disponiveis = carregar_criterios()
+            except Exception as e:
+                st.error(f"❌ Erro ao carregar critérios: {e}")
+                criterios_disponiveis = []
     
     else:
         st.warning("⚠️ Digite ou cole seu roteiro para começar a análise!")
