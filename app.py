@@ -137,8 +137,9 @@ def mostrar_resultados(resultados, analisador, modelo_gpt, criterios_disponiveis
         col1, col2 = st.columns([0.1, 0.9])
         
         with col1:
+            # Sempre criar um checkbox com key única
             if criterio_index is not None:
-                checkbox_key = f"prox_analise_{criterio_index}_{i}"  # Adicionar índice do loop para unicidade
+                checkbox_key = f"prox_analise_{criterio_index}_{i}"
                 incluir_proxima = st.checkbox(
                     "",
                     value=saved_value,
@@ -146,6 +147,15 @@ def mostrar_resultados(resultados, analisador, modelo_gpt, criterios_disponiveis
                     help="Incluir na próxima análise"
                 )
                 st.session_state.proxima_analise_criterios[criterio_index] = incluir_proxima
+            else:
+                # Se não encontrou o critério, usar um ID único baseado no título
+                checkbox_key = f"prox_analise_unknown_{abs(hash(titulo))}_{i}"
+                incluir_proxima = st.checkbox(
+                    "",
+                    value=saved_value,
+                    key=checkbox_key,
+                    help="Incluir na próxima análise"
+                )
         
         with col2:
             if foi_aprovado:
